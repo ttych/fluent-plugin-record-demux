@@ -1,18 +1,20 @@
-require:
+---
+
+plugins:
   - rubocop-rake
 
 AllCops:
-  TargetRubyVersion: 2.4
+  TargetRubyVersion: 2.7
   NewCops: enable
 
 Gemspec/DevelopmentDependencies:
-  Enabled: false
+  EnforcedStyle: gemspec
 
 Layout/LineLength:
   Max: 100
 
-# Metrics/AbcSize:
-#   Max: 40
+Metrics/AbcSize:
+  Max: 25
 
 Metrics/BlockLength:
   Exclude:

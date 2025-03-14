@@ -29,11 +29,11 @@ module Fluent
       config_param :tag, :string, default: nil
 
       desc 'list of keys to demux'
-      config_param :demux_keys, :array, default: nil
+      config_param :demux_keys, :array, value_type: :string, default: nil
       desc 'list of keys to be shared in all new records'
-      config_param :shared_keys, :array, default: []
+      config_param :shared_keys, :array, value_type: :string, default: []
       desc 'list of keys to be removed'
-      config_param :remove_keys, :array, default: []
+      config_param :remove_keys, :array, value_type: :string, default: []
 
       desc 'event key format uniformize'
       config_param :event_key_uniformize, :bool, default: false
@@ -53,29 +53,29 @@ module Fluent
 
         return unless @tag.nil?
 
-        raise Fluent::ConfigError, 'out_record_splitter: `tag` must be specified'
+        raise Fluent::ConfigError, "#{NAME}: `tag` must be specified"
       end
 
       def multi_workers_ready?
         true
       end
 
-      def process(_tag, es)
-        es.each do |time, record|
+      def process(_events_tag, events)
+        demux_events = Fluent::EventStream.new
+        events.each do |time, record|
           record_keys = record.keys - remove_keys
+          record_shared_keys = record_keys.intersection(shared_keys)
+          record.slice(*record_shared_keys)
+          record_demux_keys = record_keys - record_shared_keys if !demux_keys || demux_keys.empty?
 
-          shared_keys = record_keys.intersection(@shared_keys)
-          shared = record.select { |key, _value| shared_keys.include?(key) }
-          demux_keys = record_keys - shared_keys if !demux_keys || demux_keys.empty?
-
-          demux_keys.each do |key|
+          record_demux_keys.each do |key|
             next unless record.key?(key)
 
             new_record = format(time, key, record[key], shared)
-
-            router.emit(@tag, time, new_record)
+            demux_events.add(time, new_record)
           end
         end
+        router.emit_stream(tag, demux_events)
       end
 
       private

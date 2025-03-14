@@ -4,6 +4,8 @@ require 'helper'
 require 'fluent/plugin/out_record_demux'
 
 class RecordDemuxOutputTest < Test::Unit::TestCase
+  BASE_CONF = %(tag test)
+
   setup do
     Fluent::Test.setup
   end
@@ -25,10 +27,6 @@ class RecordDemuxOutputTest < Test::Unit::TestCase
   end
 
   private
-
-  BASE_CONF = %(
-    tag test
-  )
 
   def create_driver(conf = BASE_CONF)
     Fluent::Test::Driver::Output.new(Fluent::Plugin::RecordDemuxOutput).configure(conf)
