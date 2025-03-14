@@ -18,9 +18,9 @@
 | timestamp_key        | string          | *nil*   | add timestamp key when defined, computed from time of the event            |
 | timestamp_format     | enum            | iso     | can be iso for iso8601(3) or epochmillis for epoch with millisecond format |
 
-### example
+### example 1
 
-Example of configuration
+Example of configuration:
 
 ``` text
 <match *>
@@ -34,6 +34,34 @@ Example of configuration
 </match>
 ```
 
+### example 2
+
+With configuration:
+
+``` text
+<match *>
+  @type record_demux
+
+  tag data.demux
+
+  shared_keys tags_1, tags_2
+  remove_keys tmp
+</match>
+```
+
+It will transform event like:
+
+``` text
+{ "a": "data_a", "b": "data_b", "c": "data_c", "tags_1": "data_1", "tags_2": "data_2", "tmp": "data_tmp" }
+```
+
+into events:
+
+``` text
+{ "a": "data_a", "tags_1": "data_1", "tags_2": "data_2" }
+{ "b": "data_b", "tags_1": "data_1", "tags_2": "data_2" }
+{ "c": "data_c", "tags_1": "data_1", "tags_2": "data_2" }
+```
 
 ## Installation
 
