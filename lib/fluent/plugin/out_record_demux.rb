@@ -31,7 +31,7 @@ module Fluent
       desc 'list of keys to demux'
       config_param :demux_keys, :array, value_type: :string, default: nil
       desc 'list of keys to be shared in all new records'
-      config_param :shared_keys, :array, value_type: :string, default: []
+      config_param :shared_keys, :array, value_type: :string, default: nil
       desc 'list of keys to be removed'
       config_param :remove_keys, :array, value_type: :string, default: []
 
@@ -51,9 +51,13 @@ module Fluent
       def configure(conf)
         super
 
-        return unless @tag.nil?
+        raise Fluent::ConfigError, "#{NAME}: `tag` must be specified" if tag.nil? || tag.empty?
 
-        raise Fluent::ConfigError, "#{NAME}: `tag` must be specified"
+        if demux_keys.nil? && shared_keys.nil?
+          raise Fluent::ConfigError, 'specify demux_keys or shared_keys'
+        end
+
+        true
       end
 
       def multi_workers_ready?
@@ -61,17 +65,27 @@ module Fluent
       end
 
       def process(_events_tag, events)
-        demux_events = Fluent::EventStream.new
+        demux_events = MultiEventStream.new
         events.each do |time, record|
           record_keys = record.keys - remove_keys
-          record_shared_keys = record_keys.intersection(shared_keys)
-          record.slice(*record_shared_keys)
-          record_demux_keys = record_keys - record_shared_keys if !demux_keys || demux_keys.empty?
+
+          record_shared_keys = if shared_keys.nil?
+                                 record_keys - demux_keys
+                               else
+                                 record_keys.intersection(shared_keys)
+                               end
+          record_shared = record.slice(*record_shared_keys)
+
+          record_demux_keys = if demux_keys.nil?
+                                record_keys - record_shared_keys
+                              else
+                                record_keys.intersection(demux_keys)
+                              end
 
           record_demux_keys.each do |key|
             next unless record.key?(key)
 
-            new_record = format(time, key, record[key], shared)
+            new_record = format(time, key, record[key], record_shared)
             demux_events.add(time, new_record)
           end
         end

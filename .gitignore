@@ -1,6 +1,5 @@
-# tmp files
+/pkg
 /tmp
-.byebug_history
+/.byebug_history
 /coverage
-
 /Gemfile.lock

@@ -49,6 +49,19 @@ With configuration:
 </match>
 ```
 
+or with configuration:
+
+``` text
+<match *>
+  @type record_demux
+
+  tag data.demux
+
+  demux_keys a, b, c
+  remove_keys tmp
+</match>
+```
+
 It will transform event like:
 
 ``` text
