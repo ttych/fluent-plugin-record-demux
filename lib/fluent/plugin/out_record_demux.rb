@@ -26,7 +26,7 @@ module Fluent
       helpers :event_emitter, :timer
 
       desc 'tag to emit events on'
-      config_param :tag, :string, default: nil
+      config_param :tag, :string
 
       desc 'list of keys to demux'
       config_param :demux_keys, :array, value_type: :string, default: nil

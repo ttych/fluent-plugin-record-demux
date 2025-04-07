@@ -1,0 +1,20 @@
+{
+    "label1": "value_label1",
+    "label2": "value_label2",
+    "label3": "value_label3",
+    "common": {
+        "metadata1": "value_metadata1",
+        "metadata2": "value_metadata2",
+        "metadata3": "value_metadata3",
+        "metadata4": "value_metadata4",
+        "metadata5": "value_metadata5",
+        "metadata6": "value_metadata6"
+    },
+    "state": {
+        "state1": "value_state1",
+        "state2": "value_state2",
+        "state3": "value_state3",
+        "state4": "value_state4",
+        "state5": "value_state5"
+    }
+}
